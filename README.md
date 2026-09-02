@@ -32,10 +32,48 @@
    ```bat
    create_cookies.bat
    ```
-   Или через логин/пароль:
+   Откроется меню:
+   - **1 — логин и пароль** (рекомендуется)
+   - **2 — из браузера** (нужно полностью закрыть браузер)
+   - **3 — SID вручную** (из DevTools, если другие способы не работают)
+
+   Быстрые команды:
    ```bat
-   create_cookies.bat --login
+   create_cookies.bat -Login
+   create_cookies.bat -BrowserMode
+   create_cookies.bat -Manual
+   create_cookies.bat -ValidateOnly
    ```
+
+### Настройка cookies (подробно)
+
+**Способ 1 — логин и пароль (рекомендуется)**
+```bat
+create_cookies.bat -Login
+```
+Введите email/телефон и пароль от Litres. Скрипт создаст файл `cookies/litres_cookies.json` и проверит авторизацию.
+
+**Способ 2 — из браузера**
+1. Войдите на [litres.ru](https://www.litres.ru) в Edge/Chrome/Firefox
+2. **Полностью закройте браузер** (иначе будет ошибка доступа к файлу cookies)
+3. Запустите:
+   ```bat
+   create_cookies.bat -BrowserMode
+   ```
+
+**Способ 3 — SID вручную**
+1. Откройте [litres.ru](https://www.litres.ru) и войдите в аккаунт
+2. Нажмите `F12` → вкладка **Application** → **Cookies** → `https://www.litres.ru`
+3. Найдите cookie `SID` и скопируйте его значение
+4. Запустите:
+   ```bat
+   create_cookies.bat -Manual
+   ```
+
+**Проверка cookies**
+```bat
+create_cookies.bat -ValidateOnly
+```
 
 4. Обновление (после `git clone` или когда вышла новая версия):
    ```bat
@@ -77,6 +115,8 @@ litres-book-downloader/
 ├── install.bat          # Установка зависимостей
 ├── update.bat           # Обновление репозитория и зависимостей
 ├── create_cookies.bat   # Настройка авторизации
+├── scripts/
+│   └── setup_cookies.py # Логика создания cookies
 ├── download.bat         # Скачивание книг
 ├── config.json          # Настройки путей
 ├── book_list.txt        # Пример списка книг

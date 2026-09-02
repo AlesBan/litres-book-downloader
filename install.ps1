@@ -120,10 +120,7 @@ foreach ($dir in @($CookiesDir, $BooksDir)) {
 }
 
 if (-not (Test-Path $CookiesFile)) {
-    $example = Join-Path $CookiesDir "litres_cookies.example.json"
-    if (Test-Path $example) {
-        Copy-Item $example $CookiesFile
-    }
+    Write-Host "  cookies/litres_cookies.json будет создан через create_cookies.bat" -ForegroundColor Gray
 }
 
 Write-Host ""
@@ -131,16 +128,14 @@ Write-Host "РЈСЃС‚Р°РЅРѕРІРєР° Р·Р°РІРµСЂС€Рµ�
 Write-Host ""
 
 if (-not $SkipCookiesHelp) {
-    Write-Host "РЎР»РµРґСѓСЋС‰РёР№ С€Р°Рі - РЅР°СЃС‚СЂРѕРёС‚СЊ cookies РґР»СЏ Litres:" -ForegroundColor Yellow
+    Write-Host "Следующий шаг - настроить cookies для Litres:" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  Р’Р°СЂРёР°РЅС‚ A (РёР· Р±СЂР°СѓР·РµСЂР°, СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ):" -ForegroundColor White
-    Write-Host "    1. Р’РѕР№РґРёС‚Рµ РЅР° litres.ru РІ Edge/Firefox/Chrome"
-    Write-Host "    2. Р—Р°РїСѓСЃС‚РёС‚Рµ create_cookies.bat"
+    Write-Host "  create_cookies.bat" -ForegroundColor White
     Write-Host ""
-    Write-Host "  Р’Р°СЂРёР°РЅС‚ B (Р»РѕРіРёРЅ/РїР°СЂРѕР»СЊ):" -ForegroundColor White
-    Write-Host "    create_cookies.bat --login"
+    Write-Host "  Рекомендуется способ 1: логин и пароль." -ForegroundColor Gray
+    Write-Host "  Если не работает - способ 3: SID вручную из DevTools." -ForegroundColor Gray
     Write-Host ""
-    Write-Host "РџРѕСЃР»Рµ РЅР°СЃС‚СЂРѕР№РєРё cookies Р·Р°РїСѓСЃРєР°Р№С‚Рµ:" -ForegroundColor Yellow
+    Write-Host "После настройки cookies запускайте:" -ForegroundColor Yellow
     Write-Host "  download.bat"
     Write-Host ""
 }
