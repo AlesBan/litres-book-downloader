@@ -32,7 +32,7 @@ $CookiesFile = Join-Path $ScriptDir ($config.cookiesFile -replace '/', '\')
 $VenvPython = Join-Path $DownloaderDir ".venv\Scripts\python.exe"
 
 function Invoke-SetupCookies {
-    param([string[]]$Args)
+    param([string[]]$PythonArgs)
 
     if (-not (Test-Path $VenvPython)) {
         Write-Host "Ошибка: не найдено окружение Python." -ForegroundColor Red
@@ -45,7 +45,7 @@ function Invoke-SetupCookies {
         exit 1
     }
 
-    & $VenvPython $SetupScript @Args
+    & $VenvPython $SetupScript @PythonArgs
     $exitCode = $LASTEXITCODE
     if ($null -eq $exitCode) { $exitCode = 0 }
     return $exitCode
@@ -73,7 +73,7 @@ function Show-Help {
 }
 
 if ($ValidateOnly) {
-    exit (Invoke-SetupCookies @(
+    exit (Invoke-SetupCookies -PythonArgs @(
         "--validate-only",
         "--cookies-file", $CookiesFile
     ))
@@ -99,7 +99,7 @@ if (-not $method) {
         "2" { $method = "browser" }
         "3" { $method = "manual" }
         "4" {
-            exit (Invoke-SetupCookies @(
+            exit (Invoke-SetupCookies -PythonArgs @(
                 "--validate-only",
                 "--cookies-file", $CookiesFile
             ))
@@ -145,7 +145,7 @@ elseif ($method -eq "manual") {
     $argsList += @("--sid", $sid)
 }
 
-$exitCode = Invoke-SetupCookies $argsList
+$exitCode = Invoke-SetupCookies -PythonArgs $argsList
 if ($exitCode -ne 0) {
     Write-Host ""
     Write-Host "Если не получилось:" -ForegroundColor Yellow
