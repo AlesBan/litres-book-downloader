@@ -37,6 +37,12 @@
    create_cookies.bat --login
    ```
 
+4. Обновление (после `git clone` или когда вышла новая версия):
+   ```bat
+   update.bat
+   ```
+   Обновляет этот репозиторий, загрузчик в `downloader/` и Python-зависимости.
+
 ## Использование
 
 **Одна книга по ссылке:**
@@ -69,6 +75,7 @@ https://www.litres.ru/book/author/book-two-456/
 ```
 litres-book-downloader/
 ├── install.bat          # Установка зависимостей
+├── update.bat           # Обновление репозитория и зависимостей
 ├── create_cookies.bat   # Настройка авторизации
 ├── download.bat         # Скачивание книг
 ├── config.json          # Настройки путей
