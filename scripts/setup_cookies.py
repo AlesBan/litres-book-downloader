@@ -118,7 +118,9 @@ def extract_sid_from_browser(browser: str) -> str:
         cookie_jar = loader()
     except PermissionError as exc:
         raise RuntimeError(
-            f"Cannot read {browser} cookies. Close the browser completely and try again."
+            f"Cannot read {browser} cookies. The browser is still running in the background. "
+            "Close all browser windows, end msedge.exe/chrome.exe in Task Manager, and try again. "
+            "Or use login method: create_cookies.bat -Login"
         ) from exc
     except Exception as exc:
         raise RuntimeError(

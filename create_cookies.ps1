@@ -45,10 +45,83 @@ function Invoke-SetupCookies {
         exit 1
     }
 
-    & $VenvPython $SetupScript @PythonArgs
-    $exitCode = $LASTEXITCODE
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $output = & $VenvPython $SetupScript @PythonArgs 2>&1
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $prevEap
+    }
+
     if ($null -eq $exitCode) { $exitCode = 0 }
+
+    foreach ($line in $output) {
+        if ($line -is [System.Management.Automation.ErrorRecord]) {
+            $text = $line.ToString()
+        }
+        else {
+            $text = $line.ToString()
+        }
+
+        if ($text -match '^Error:') {
+            Write-Host $text -ForegroundColor Red
+        }
+        elseif ($text -match '^WARNING:') {
+            Write-Host $text -ForegroundColor DarkYellow
+        }
+        else {
+            Write-Host $text
+        }
+    }
+
     return $exitCode
+}
+
+function Get-BrowserProcessNames {
+    param([string]$Browser)
+
+    switch ($Browser.ToLower()) {
+        "edge" { return @("msedge") }
+        "chrome" { return @("chrome") }
+        "chromium" { return @("chrome", "chromium") }
+        "firefox" { return @("firefox") }
+        "vivaldi" { return @("vivaldi") }
+        default { return @() }
+    }
+}
+
+function Stop-BrowserProcesses {
+    param([string]$Browser)
+
+    $processNames = Get-BrowserProcessNames $Browser
+    if ($processNames.Count -eq 0) {
+        return
+    }
+
+    $running = Get-Process -Name $processNames -ErrorAction SilentlyContinue
+    if (-not $running) {
+        Write-Host "Фоновые процессы $Browser не найдены." -ForegroundColor Green
+        return
+    }
+
+    $count = @($running).Count
+    Write-Host "Найдено процессов $Browser`: $count" -ForegroundColor Yellow
+    Write-Host "Edge/Chrome часто остаются в фоне даже после закрытия окон." -ForegroundColor Gray
+
+    $answer = Read-Host "Закрыть их автоматически? (Y/n)"
+    if ($answer -match '^(n|no|нет)$') {
+        Write-Host "Закройте браузер через Диспетчер задач и запустите снова." -ForegroundColor Yellow
+        return
+    }
+
+    foreach ($name in $processNames) {
+        & taskkill /IM "$name.exe" /F 2>$null | Out-Null
+    }
+
+    Start-Sleep -Seconds 2
+    Write-Host "Процессы $Browser закрыты. Ждём 2 сек..." -ForegroundColor Green
 }
 
 function Read-SecurePasswordPlain {
@@ -129,9 +202,12 @@ elseif ($method -eq "browser") {
         if ([string]::IsNullOrWhiteSpace($Browser)) { $Browser = "edge" }
     }
     Write-Host ""
-    Write-Host "Важно: полностью закройте браузер перед продолжением." -ForegroundColor Yellow
-    Write-Host "Убедитесь, что вы уже вошли на litres.ru в этом браузере." -ForegroundColor Yellow
-    Read-Host "Нажмите Enter, когда браузер закрыт"
+    Write-Host "Сначала войдите на https://www.litres.ru в выбранном браузере." -ForegroundColor Yellow
+    Write-Host "Затем полностью закройте браузер (включая фоновые процессы)." -ForegroundColor Yellow
+    Read-Host "Нажмите Enter, когда окна браузера закрыты"
+
+    Stop-BrowserProcesses -Browser $Browser
+
     $argsList += @("--browser", $Browser)
 }
 elseif ($method -eq "manual") {
@@ -146,12 +222,24 @@ elseif ($method -eq "manual") {
 }
 
 $exitCode = Invoke-SetupCookies -PythonArgs $argsList
-if ($exitCode -ne 0) {
+if ($exitCode -eq 0) {
+    Write-Host ""
+    Write-Host "Готово! Cookies настроены." -ForegroundColor Green
+    Write-Host "Запускайте: download.bat" -ForegroundColor Green
+}
+else {
     Write-Host ""
     Write-Host "Если не получилось:" -ForegroundColor Yellow
-    Write-Host "  - попробуйте способ 1 (логин и пароль)"
-    Write-Host "  - или способ 3 (SID вручную из DevTools)"
-    Write-Host "  - убедитесь, что install.bat уже выполнен"
+    if ($method -eq "browser") {
+        Write-Host "  - Edge/Chrome: закройте все окна и фоновые процессы (Диспетчер задач -> msedge.exe)"
+        Write-Host "  - или используйте способ 1: create_cookies.bat -Login"
+        Write-Host "  - или способ 3: create_cookies.bat -Manual"
+    }
+    else {
+        Write-Host "  - попробуйте способ 1 (логин и пароль)"
+        Write-Host "  - или способ 3 (SID вручную из DevTools)"
+        Write-Host "  - убедитесь, что install.bat уже выполнен"
+    }
 }
 
 exit $exitCode
