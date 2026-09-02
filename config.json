@@ -1,0 +1,7 @@
+{
+  "downloaderPath": "downloader",
+  "downloaderRepo": "https://github.com/fabrikant/litres_audiobooks_downloader.git",
+  "outputDir": "books",
+  "cookiesFile": "cookies/litres_cookies.json",
+  "defaultBookList": "book_list.txt"
+}
